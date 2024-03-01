@@ -1,0 +1,63 @@
+---
+- name: Manage EC2 instance state with inline credentials
+  hosts: localhost
+  gather_facts: no
+  vars:
+    aws_access_key: "AKIAXYKJWHCMK7D5WCPJ"  # Placeholders, replace with your actual AWS access key
+    aws_secret_key: "0WfoML4qvRp7lP8kK6QcESgvZ1SDRvGAwqzoGz+H"        # Placeholders, replace with your actual AWS secret key
+    region: "us-east-1"
+    instance_id: "i-0cb2f8ee87b6c0569"  # Replace with your actual EC2 instance ID
+  tasks:
+    - name: Start the EC2 instance
+      community.aws.ec2_instance:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ region }}"
+        state: started
+        instance_ids:
+          - "{{ instance_id }}"
+      register: start_result
+
+    - name: Send notification email
+      mail:
+        host: smtp.gmail.com
+        port: 587                     # Correct port for STARTTLS
+        username: gptishh@gmail.com
+        password: "dqzh drfi thmr mxxm"  # Assuming this is your app password
+        to: commanderata@gmail.com
+        subject: 'Ansible Notification'
+        body: 'EC2 instance started and work is going on '
+        sender: gptishh@gmail.com
+        secure: starttls               # Correct security option for STARTTLS
+        headers:
+          - X-Priority: '2'
+      delegate_to: localhost    
+
+    - name: Wait for 30 seconds before stopping the instance
+      pause:
+        seconds: 30
+
+    - name: Stop the EC2 instance
+      community.aws.ec2_instance:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "{{ region }}"
+        state: stopped
+        instance_ids:
+          - "{{ instance_id }}"
+      register: stop_result
+
+    - name: Send notification email
+      mail:
+        host: smtp.gmail.com
+        port: 587                     # Correct port for STARTTLS
+        username: gptishh@gmail.com
+        password: "dqzh drfi thmr mxxm"  # Assuming this is your app password
+        to: commanderata@gmail.com
+        subject: 'Ansible Notification'
+        body: 'Instance stopped. Good night'
+        sender: gptishh@gmail.com
+        secure: starttls               # Correct security option for STARTTLS
+        headers:
+          - X-Priority: '2'
+      delegate_to: localhost
